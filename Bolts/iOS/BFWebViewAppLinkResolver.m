@@ -48,14 +48,20 @@ static NSString *const BFWebViewAppLinkResolverWebURLKey = @"url";
 static NSString *const BFWebViewAppLinkResolverShouldFallbackKey = @"should_fallback";
 
 @interface BFWebViewAppLinkResolverWebViewDelegate : NSObject <UIWebViewDelegate>
+#if !TARGET_OS_UIKITFORMAC
 
 @property (nonatomic, copy) void (^didFinishLoad)(UIWebView *webView);
 @property (nonatomic, copy) void (^didFailLoadWithError)(UIWebView *webView, NSError *error);
+
+#endif
+
 @property (nonatomic, assign) BOOL hasLoaded;
 
 @end
 
 @implementation BFWebViewAppLinkResolverWebViewDelegate
+
+#if !TARGET_OS_UIKITFORMAC
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView {
     if (self.didFinishLoad) {
@@ -82,6 +88,8 @@ static NSString *const BFWebViewAppLinkResolverShouldFallbackKey = @"should_fall
     self.hasLoaded = YES;
     return YES;
 }
+
+#endif
 
 @end
 
@@ -144,6 +152,9 @@ static NSString *const BFWebViewAppLinkResolverShouldFallbackKey = @"should_fall
 }
 
 - (BFTask *)appLinkFromURLInBackground:(NSURL *)url NS_EXTENSION_UNAVAILABLE_IOS("") {
+    
+    #if !TARGET_OS_UIKITFORMAC
+    
     return [[self followRedirects:url] continueWithExecutor:[BFExecutor mainThreadExecutor]
                                            withSuccessBlock:^id(BFTask *task) {
                                                NSData *responseData = task.result[@"data"];
@@ -181,6 +192,13 @@ static NSString *const BFWebViewAppLinkResolverShouldFallbackKey = @"should_fall
 
                                                return tcs.task;
                                            }];
+    
+#else
+    
+    return false;
+#endif
+    
+    
 }
 
 /*

@@ -10,6 +10,12 @@
 
 #import <Foundation/Foundation.h>
 
+#if !TARGET_OS_UIKITFORMAC
+
+#define UIWebView Undefined
+
+#endif
+
 #import <Bolts/BFAppLinkResolving.h>
 
 /*!
